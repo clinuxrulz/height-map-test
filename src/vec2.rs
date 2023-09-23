@@ -1,5 +1,5 @@
 use crate::Sqrt;
-use std::ops::{Add, Sub, Mul};
+use std::ops::{Add, Sub, Mul, Div};
 
 pub struct Vec2<T> {
     pub x: T,
@@ -33,6 +33,17 @@ impl<T: Copy> Vec2<T> {
         T: Add<Output=T> + Mul<Output=T> + Clone + Sqrt<Output=T>
     {
         self.length_squared().sqrt()
+    }
+
+    pub fn normalize(self) -> Vec2<T>
+    where
+        T: Add<Output=T> + Mul<Output=T> + Div<Output=T> + Clone + Sqrt<Output=T>
+    {
+        let len = self.length();
+        Vec2::new(
+            self.x / len,
+            self.y / len,
+        )
     }
 }
 
