@@ -12,7 +12,6 @@ mod quaternion;
 mod ray2;
 mod sqrt;
 mod transform3;
-mod two;
 mod zero;
 
 pub use aabb::Aabb;
@@ -27,7 +26,6 @@ pub use quaternion::Quaternion;
 pub use ray2::Ray2;
 pub use sqrt::Sqrt;
 pub use transform3::Transform3;
-pub use two::Two;
 pub use zero::Zero;
 
 #[wasm_bindgen]
