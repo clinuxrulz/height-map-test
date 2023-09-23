@@ -18,7 +18,7 @@ impl<T> Aabb<T> {
         Aabb { min_x, min_y, min_z, max_x, max_y, max_z, }
     }
 
-    pub fn ray_insection_2pt5d(&self, ray: Ray2<T>) -> Option<T>
+    pub fn ray_insection_2pt5d(&self, ray: Ray2<T>) -> Option<(T,T)>
     where
         T: Sub<Output=T> + Div<Output=T> + Copy + Min + Max + PartialOrd + Zero
     {
@@ -34,6 +34,6 @@ impl<T> Aabb<T> {
         if t_max < t_min {
             return None;
         }
-        Some(t_min)
+        Some((t_min,t_max))
     }
 }

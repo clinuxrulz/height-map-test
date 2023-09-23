@@ -57,5 +57,19 @@ pub fn main() {
         screen_height,
         screen_dist
     };
+    for x in 0..screen_width as u32 {
+        let ray = camera.screen_x_to_ray2(x as f64);
+        if ray.is_none() {
+            continue;
+        }
+        let ray = ray.unwrap();
+        let t = aabb.ray_insection_2pt5d(ray);
+        if t.is_none() {
+            continue;
+        }
+        let t = t.unwrap();
+        let (t_min, t_max) = t;
+        // TODO
+    }
     // TODO
 }
