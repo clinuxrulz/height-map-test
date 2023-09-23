@@ -1,6 +1,7 @@
 use wasm_bindgen::prelude::*;
 
 mod aabb;
+mod acos;
 mod camera;
 mod height_map;
 mod vec2;
@@ -10,11 +11,13 @@ mod min;
 mod one;
 mod quaternion;
 mod ray2;
+mod sin;
 mod sqrt;
 mod transform3;
 mod zero;
 
 pub use aabb::Aabb;
+pub use acos::Acos;
 pub use camera::Camera;
 pub use height_map::HeightMap;
 pub use vec2::Vec2;
@@ -24,6 +27,7 @@ pub use min::Min;
 pub use one::One;
 pub use quaternion::Quaternion;
 pub use ray2::Ray2;
+pub use sin::Sin;
 pub use sqrt::Sqrt;
 pub use transform3::Transform3;
 pub use zero::Zero;
