@@ -5,10 +5,17 @@
     <title>height map test</title>
   </head>
   <body>
+    <canvas id="canvas" width="320" height="200">
+    </canvas>
     <script type="module">
       import init, { main } from "./pkg/height_map_test.js";
       init().then(() => {
-        main();
+        let screen = new Uint32Array(320*200);
+        main(screen);
+        let canvas = document.getElementById("canvas");
+        let ctx = canvas.getContext("2d");
+        let imgData = ctx.createImageData(320, 200);
+        imgData.data.set(screen);
       });
     </script>
   </body>

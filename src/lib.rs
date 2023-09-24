@@ -1,4 +1,5 @@
 use wasm_bindgen::prelude::*;
+use js_sys::Uint32Array;
 
 mod aabb;
 mod acos;
@@ -38,7 +39,7 @@ extern {
 }
 
 #[wasm_bindgen]
-pub fn main() {
+pub fn main(screen: &Uint32Array) {
     let height_map = HeightMap::new(256);
     let aabb = Aabb::new(-128.0, -128.0, -128.0, 128.0, 128.0, 128.0);
     let w = Vec3::new(-1.0, 1.0, 1.0).normalize();
