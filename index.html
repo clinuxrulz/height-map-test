@@ -5,10 +5,14 @@
     <title>height map test</title>
   </head>
   <body>
-    <canvas id="canvas" width="320" height="200">
+    <canvas style="width: 100%;" id="canvas" width="320" height="200">
     </canvas>
     <script type="module">
       import init, { main } from "./pkg/height_map_test.js";
+      window.addEventListener("resize", () => {
+        let canvas = document.getElementById("canvas");
+        canvas.clientHeight = canvas.clientWidth * 200.0 / 320.0;
+      });
       init().then(() => {
         let canvas = document.getElementById("canvas");
         let ctx = canvas.getContext("2d");
