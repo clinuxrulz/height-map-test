@@ -10,12 +10,12 @@
     <script type="module">
       import init, { main } from "./pkg/height_map_test.js";
       init().then(() => {
-        let screen = new Uint32Array(320*200);
-        main(screen);
         let canvas = document.getElementById("canvas");
         let ctx = canvas.getContext("2d");
         let imgData = ctx.createImageData(320, 200);
-        imgData.data.set(screen);
+        let screen = new Uint32Array(imgData.data.buffer);
+        main(screen);
+        ctx.putImageData(imgData, 0, 0);
       });
     </script>
   </body>

@@ -18,14 +18,14 @@ impl<T> Aabb<T> {
         Aabb { min_x, min_y, min_z, max_x, max_y, max_z, }
     }
 
-    pub fn ray_insection_2pt5d(&self, ray: Ray2<T>) -> Option<(T,T)>
+    pub fn ray_xz_insection_2pt5d(&self, ray_xz: Ray2<T>) -> Option<(T,T)>
     where
         T: Sub<Output=T> + Div<Output=T> + Copy + Min + Max + PartialOrd + Zero
     {
-        let t1 = (self.min_x - ray.origin.x) / ray.direction.x;
-        let t2 = (self.max_x - ray.origin.x) / ray.direction.x;
-        let t3 = (self.min_y - ray.origin.y) / ray.direction.y;
-        let t4 = (self.max_y - ray.origin.y) / ray.direction.y;
+        let t1 = (self.min_x - ray_xz.origin.x) / ray_xz.direction.x;
+        let t2 = (self.max_x - ray_xz.origin.x) / ray_xz.direction.x;
+        let t3 = (self.min_z - ray_xz.origin.y) / ray_xz.direction.y;
+        let t4 = (self.max_z - ray_xz.origin.y) / ray_xz.direction.y;
         let t_min = t1.min(t2).max(t3.min(t4));
         let t_max = t1.max(t2).min(t3.max(t4));
         if t_min < T::zero() {

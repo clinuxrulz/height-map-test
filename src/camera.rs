@@ -9,7 +9,7 @@ pub struct Camera<T> {
 }
 
 impl<T: Copy> Camera<T> {
-    pub fn screen_x_to_ray2(&self, x: T) -> Option<Ray2<T>>
+    pub fn screen_x_to_ray_xz(&self, x: T) -> Option<Ray2<T>>
     where
         T: Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Neg<Output = T> + Zero + One + Sqrt<Output=T>
     {

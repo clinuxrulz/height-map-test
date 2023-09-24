@@ -67,18 +67,33 @@ pub fn main(screen: &Uint32Array) {
         screen_height,
         screen_dist
     };
+    for i in 0..64000 {
+        screen.set_index(i, 0xFF000000);
+    }
     for x in 0..screen_width as u32 {
-        let ray = camera.screen_x_to_ray2(x as f64);
-        if ray.is_none() {
+        let ray_xz = camera.screen_x_to_ray_xz(x as f64);
+        if ray_xz.is_none() {
             continue;
         }
-        let ray = ray.unwrap();
-        let t = aabb.ray_insection_2pt5d(ray);
+        let ray_xz = ray_xz.unwrap();
+        let t = aabb.ray_xz_insection_2pt5d(ray_xz);
         if t.is_none() {
             continue;
         }
         let t = t.unwrap();
         let (t_min, t_max) = t;
+        let pt = ray_xz.position_from_time(t_min);
+        let y1 = camera.project_y(Vec3::new(pt.x, aabb.min_y, pt.y));
+        let y2 = camera.project_y(Vec3::new(pt.x, aabb.max_y, pt.y));
+        let y1i = y1 as i32;
+        let y2i = y2 as i32;
+        let y_min = y1i.min(y2i).max(0).min(199);
+        let y_max = y1i.max(y2i).max(0).min(199);
+        for y in y_min..y_max+1 {
+            let y = y as u32;
+            let offset = (y << 8) + (y << 6) + x;
+            screen.set_index(offset, 0xFF808080);
+        }
         // TODO
     }
     // TODO
