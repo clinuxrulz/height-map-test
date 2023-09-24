@@ -24,6 +24,16 @@ impl<T: Copy> Camera<T> {
         )
     }
 
+    pub fn project_y(&self, pt: Vec3<T>) -> T
+    where
+        T: Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Neg<Output = T> + Zero + One
+    {
+        let pt2 = self.space.point_to_space(pt);
+        let y = pt2.y * self.screen_dist / -pt2.z;
+        let half = T::one() / (T::one() + T::one());
+        return half * self.screen_height - y;
+    }
+
     pub fn project(&self, pt: Vec3<T>) -> Vec2<T>
     where
         T: Add<Output = T> + Sub<Output = T> + Mul<Output = T> + Div<Output = T> + Neg<Output = T> + Zero + One
