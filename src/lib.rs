@@ -38,9 +38,18 @@ extern {
     pub fn alert(s: &str);
 }
 
+use console_error_panic_hook;
+use std::panic;
+
+fn init_panic_hook() {
+    panic::set_hook(Box::new(console_error_panic_hook::hook));
+}
+
 #[wasm_bindgen]
 pub fn main(screen: &Uint32Array) {
-    let height_map = HeightMap::new(256);
+    init_panic_hook();
+    //
+    //let height_map = HeightMap::new(256);
     let aabb = Aabb::new(-128.0, -128.0, -128.0, 128.0, 128.0, 128.0);
     let w = Vec3::new(-1.0, 1.0, 1.0).normalize();
     let up = Vec3::new(0.0, 1.0, 0.0);
