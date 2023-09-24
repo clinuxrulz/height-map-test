@@ -38,7 +38,7 @@ impl<T: Copy> Vec3<T> {
     where
         T: Add<Output=T> + Mul<Output=T> + Clone
     {
-        self.x.clone() * self.x.clone() + self.y.clone() * self.y.clone()
+        self.x.clone() * self.x.clone() + self.y.clone() * self.y.clone() + self.z.clone() * self.z.clone()
     }
 
     pub fn length(&self) -> T
