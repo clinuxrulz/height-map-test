@@ -9,13 +9,22 @@
     </canvas>
     <script type="module">
       import init, { main } from "./pkg/height_map_test.js";
+      let angle = 0.0;
       init().then(() => {
         let canvas = document.getElementById("canvas");
         let ctx = canvas.getContext("2d");
         let imgData = ctx.createImageData(320, 200);
         let screen = new Uint32Array(imgData.data.buffer);
-        main(screen);
-        ctx.putImageData(imgData, 0, 0);
+        let render = () => {
+          main(screen, angle);
+          ctx.putImageData(imgData, 0, 0);
+          angle += 1.0;
+          if (angle >= 360.0) {
+            angle -= 360.0;
+          }
+          requestAnimationFrame(render);
+        };
+        requestAnimationFrame(render);
       });
     </script>
   </body>

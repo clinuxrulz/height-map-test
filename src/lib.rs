@@ -46,21 +46,29 @@ fn init_panic_hook() {
 }
 
 #[wasm_bindgen]
-pub fn main(screen: &Uint32Array) {
+pub fn main(screen: &Uint32Array, angle: f64) {
     init_panic_hook();
     //
     //let height_map = HeightMap::new(256);
     let aabb = Aabb::new(-128.0, -128.0, -128.0, 128.0, 128.0, 128.0);
-    let w = Vec3::new(-1.0, 1.0, 1.0).normalize();
-    let up = Vec3::new(0.0, 1.0, 0.0);
-    let u = up.cross(w).normalize();
     let screen_width = 320.0;
     let screen_height = 200.0;
     let fov_y: f64 = 60.0;
     let screen_dist = 0.5 * screen_height / fov_y.to_radians().tan();
+    let angle2 = angle.to_radians();
+    let q = Quaternion {
+        w: angle2.cos(),
+        x: 0.0,
+        y: angle2.sin(),
+        z: 0.0,
+    };
+    let cam_pos = q.rotate(Vec3::new(-200.0, 200.0, 200.0));
+    let w = cam_pos.normalize();
+    let up = Vec3::new(0.0, 1.0, 0.0);
+    let u = up.cross(w).normalize();
     let camera = Camera {
         space: Transform3::new(
-            Vec3::new(-500.0, 500.0, 500.0),
+            cam_pos,
             Quaternion::from_wu(w, u),
         ),
         screen_width,
