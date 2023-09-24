@@ -36,6 +36,9 @@ pub use zero::Zero;
 #[wasm_bindgen]
 extern {
     pub fn alert(s: &str);
+
+    #[wasm_bindgen(js_namespace = console)]
+    pub fn log(s: &str);
 }
 
 use console_error_panic_hook;
@@ -62,7 +65,7 @@ pub fn main(screen: &Uint32Array, angle: f64) {
         y: (0.5 * angle2).sin(),
         z: 0.0,
     };
-    let cam_pos = q.rotate(Vec3::new(-400.0, 00.0, 0.0));//400.0));
+    let cam_pos = q.rotate(Vec3::new(400.0, 0.0, 400.0));
     let w = cam_pos.normalize();
     let up = Vec3::new(0.0, 1.0, 0.0);
     let u = up.cross(w).normalize();
