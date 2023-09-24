@@ -118,5 +118,26 @@ pub fn main(screen: &Uint32Array, angle: f64) {
         }
         // TODO
     }
+    let pts: [Vec2<f64>; 8] = [
+        camera.project(Vec3::new(aabb.min_x, aabb.min_y, aabb.min_z)),
+        camera.project(Vec3::new(aabb.min_x, aabb.min_y, aabb.max_z)),
+        camera.project(Vec3::new(aabb.min_x, aabb.max_y, aabb.min_z)),
+        camera.project(Vec3::new(aabb.min_x, aabb.max_y, aabb.max_z)),
+        camera.project(Vec3::new(aabb.max_x, aabb.min_y, aabb.min_z)),
+        camera.project(Vec3::new(aabb.max_x, aabb.min_y, aabb.max_z)),
+        camera.project(Vec3::new(aabb.max_x, aabb.max_y, aabb.min_z)),
+        camera.project(Vec3::new(aabb.max_x, aabb.max_y, aabb.max_z)),
+    ];
+    for pt in pts {
+        let y = pt.y as i32;
+        let x = pt.x as i32;
+        if x < 0 || x >= 320 || y < 0 || y >= 200 {
+            continue;
+        }
+        let y = y as u32;
+        let x = x as u32;
+        let offset = (y << 8) + (y << 6) + x;
+        screen.set_index(offset, 0xFF000080);
+    }
     // TODO
 }
