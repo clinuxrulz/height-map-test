@@ -102,6 +102,17 @@ pub fn main(screen: &Uint32Array, angle: f64) {
             let offset = (y << 8) + (y << 6) + x;
             screen.set_index(offset, 0xFF808080);
         }
+        let pt = ray_xz.position_from_time(t_max);
+        let y1 = camera.project_y(Vec3::new(pt.x, aabb.min_y, pt.y));
+        let y2 = camera.project_y(Vec3::new(pt.x, aabb.max_y, pt.y));
+        let y1i = y1 as i32;
+        let y2i = y2 as i32;
+        let y_min2 = y1i.min(y2i).max(0).min(199);
+        for y in y_min2..y_min {
+            let y = y as u32;
+            let offset = (y << 8) + (y << 6) + x;
+            screen.set_index(offset, 0xFF808000);
+        }
         // TODO
     }
     // TODO
