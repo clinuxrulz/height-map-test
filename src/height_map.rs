@@ -3,6 +3,7 @@ use rand::prelude::random;
 pub struct HeightMap {
     size: u32,
     data: Vec<f64>,
+    num_levels: u32,
 }
 
 impl HeightMap {
@@ -12,56 +13,64 @@ impl HeightMap {
         for _i in 0..data_len {
             data.push(0.0);
         }
-        let levels: usize;
-        {
-            let mut levels2: usize = 0;
-            let mut size2 = size;
-            while size2 != 0 {
-                size2 >>= 1;
-                levels2 += 1;
+        let mut r = HeightMap { size, data, num_levels: 0, };
+        r.num_levels = r.num_levels();
+        r.init_data();
+        r
+    }
+
+    fn init_data(&mut self) {
+        for y in 0..self.size {
+            for x in 0..self.size {
+                let h: f64 = random::<f64>() * 20.0 - 100.0;
+                self.write(self.num_levels-1, x, y, h);
             }
-            levels = levels2;
         }
-        {
-            let mut idx = 1 << (levels - 1) - 1;
-            let size2 = 1 << (levels - 1);
-            for _y in 0..size2 {
-                for _x in 0..size2 {
-                    data[idx] = random();
-                    idx += 1;
+        for lvl in (0..self.num_levels-1).rev() {
+            let lvl2 = lvl + 1;
+            for y in 0..(self.size>>lvl) {
+                for x in 0..(self.size>>lvl) {
+                    let xx = x << 1;
+                    let yy = y << 1;
+                    let h1 = self.read(lvl2, xx, yy);
+                    let h2 = self.read(lvl2, xx+1, yy);
+                    let h3 = self.read(lvl2, xx+1, yy+1);
+                    let h4 = self.read(lvl2, xx, yy+1);
+                    let h = h1.max(h2).max(h3.max(h4));
+                    self.write(lvl, x, y, h);
                 }
             }
         }
-        for level in (0..levels-1).rev() {
-            let mut idx = 1 << (levels - 1) - 1;
-            let size2 = 1 << level;
-            for _y in 0..size2 {
-                for _x in 0..size2 {
-                    /*
-                    Level 0:
-                    0
+    }
 
-                    Level 1:
-                    1 2
-                    3 4
-
-                    Level 2:
-                    5   6  7  8
-                    9  10 11 12
-                    13 14 15 16
-                    17 18 19 20
-
-                    Level 3:
-                    21 22 23 24
-                     */
-                    let idx_11 = (idx << 2) + 1;
-                    let idx_12 = (idx << 2) + 2;
-                    let idx_21 = (idx << 2) + 3;
-                    let idx_22 = (idx << 2) + 4;
-                    idx += 1;
-                }
-            }
+    pub fn num_levels(&self) -> u32 {
+        let mut level: u32 = 0;
+        let mut size: u32 = self.size;
+        while size > 0 {
+            size >>= 1;
+            level += 1;
         }
-        return HeightMap { size, data, };
+        level
+    }
+
+    pub fn offset(&self, level: u32) -> u32 {
+        let mut offset = 0;
+        for _i in 0..level {
+            offset *= 4;
+            offset += 1;
+        }
+        offset
+    }
+
+    pub fn write(&mut self, level: u32, x: u32, y: u32, val: f64) {
+        let offset = self.offset(level);
+        let offset2 = offset + (y << level) + x;
+        self.data[offset2 as usize] = val;
+    }
+
+    pub fn read(&mut self, level: u32, x: u32, y: u32) -> f64 {
+        let offset = self.offset(level);
+        let offset2 = offset + (y << level) + x;
+        return self.data[offset2 as usize];
     }
 }
