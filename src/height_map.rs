@@ -21,7 +21,7 @@ impl HeightMap {
         let size = 1 << (self.num_levels-1);
         for y in 0..size {
             for x in 0..size {
-                let h: f64 = random::<f64>() * 20.0 - 100.0;
+                let h: f64 = random::<f64>() * 100.0;
                 self.quad_tree.set_value(self.num_levels-1, x, y, h);
             }
         }

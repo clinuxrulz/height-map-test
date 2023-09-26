@@ -54,8 +54,8 @@ fn init_panic_hook() {
 pub fn main(screen: &Uint32Array, angle: f64) {
     init_panic_hook();
     //
-    //let height_map = HeightMap::new(256);
-    let aabb = Aabb::new(-128.0, -100.0, -128.0, 128.0, -80.0, 128.0);
+    let height_map = HeightMap::new(8);
+    //let aabb = Aabb::new(-128.0, -100.0, -128.0, 128.0, -80.0, 128.0);
     let screen_width = 320.0;
     let screen_height = 200.0;
     let fov_y: f64 = 45.0;
@@ -88,7 +88,8 @@ pub fn main(screen: &Uint32Array, angle: f64) {
         if ray_xz.is_none() {
             continue;
         }
-        let ray_xz = ray_xz.unwrap();
+        let mut ray_xz = ray_xz.unwrap();
+        /*
         let t = aabb.ray_xz_insection_2pt5d(ray_xz);
         if t.is_none() {
             continue;
@@ -118,6 +119,54 @@ pub fn main(screen: &Uint32Array, angle: f64) {
             let offset = (y << 8) + (y << 6) + x;
             screen.set_index(offset, 0xFF808000);
         }
+        */
+        let mut y_max = screen_height - 1.0;
+        let mut first = true;
+        loop {
+            let t = height_map.ray_xz_insection_2pt5d(ray_xz);
+            if t.is_none() {
+                break;
+            }
+            let t = t.unwrap();
+            let (t_min, t_max, height) = t;
+            let pt = ray_xz.position_from_time(t_min);
+            let y1 = camera.project_y(Vec3::new(pt.x, height, pt.y));
+            if first {
+                let y_max_max = camera.project_y(Vec3::new(pt.x, -100.0, pt.y));
+                if y_max > y_max_max {
+                    y_max = y_max_max;
+                }
+                first = false;
+            }
+            if y1 > y_max {
+                ray_xz = Ray2::new(ray_xz.position_from_time(t_max - 0.001), ray_xz.direction);
+                continue;
+            }
+            let c = ((height as i32).abs() as u32) & 0xFF;
+            let to_y = (y_max as i32).max(0).min(199);
+            let from_y = (y1 as i32).max(0).min(199);
+            y_max = y1;
+            for y in from_y..to_y+1 {
+                let y = y as u32;
+                let offset = (y << 8) + (y << 6) + x;
+                screen.set_index(offset, 0xFF008000 | (c << 16));
+            }
+            let pt = ray_xz.position_from_time(t_max);
+            let y1 = camera.project_y(Vec3::new(pt.x, height, pt.y));
+            if y1 > y_max {
+                ray_xz = Ray2::new(ray_xz.position_from_time(t_max - 0.001), ray_xz.direction);
+                continue;
+            }
+            let to_y = (y_max as i32).max(0).min(199);
+            let from_y = (y1 as i32).max(0).min(199);
+            y_max = y1;
+            for y in from_y..to_y+1 {
+                let y = y as u32;
+                let offset = (y << 8) + (y << 6) + x;
+                screen.set_index(offset, 0xFF808000);
+            }
+        }
+
         // TODO
     }
     // TODO
