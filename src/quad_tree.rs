@@ -4,13 +4,13 @@ pub struct QuadTree<T> {
 }
 
 impl<T> QuadTree<T> {
-    pub fn new(depth: usize, default_value: T) -> QuadTree<T>
+    pub fn new(num_levels: usize, default_value: T) -> QuadTree<T>
     where
         T: Copy
     {
         let mut location: usize = 0;
         let mut depth_locations = Vec::<usize>::new();
-        for i in 0..depth {
+        for i in 0..num_levels {
             let map_size: usize = 1 << (i << 1);
             depth_locations.push(location);
             location += map_size;
