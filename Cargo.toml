@@ -21,3 +21,4 @@ rand = "0.8.5"
 getrandom = { version = "0.2", features = ["js"] }
 js-sys = "0.3.64"
 console_error_panic_hook = "0.1.7"
+noise = "0.8.2"

@@ -1,4 +1,6 @@
 use rand::prelude::random;
+use noise::{Fbm, Perlin};
+use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
 
 use crate::{QuadTree, Ray2, Vec2};
 
@@ -24,10 +26,19 @@ impl HeightMap {
 
     fn init_data(&mut self) {
         let size = 1 << (self.num_levels-1);
+        let fbm = Fbm::<Perlin>::new(0);
+
+        let noise_map = PlaneMapBuilder::<_, 2>::new(&fbm)
+                .set_size(size, size)
+                .set_x_bounds(-2.0, 2.0)
+                .set_y_bounds(-2.0, 2.0)
+                .build();
+        
         for y in 0..size {
             for x in 0..size {
                 //let h: f64 = random::<f64>() * 80.0 - 140.0;
-                let h = ((x as f64) * 0.1).cos() * ((y as f64) * 0.1).sin() * 40.0 - 100.0;
+                //let h = ((x as f64) * 0.1).cos() * ((y as f64) * 0.1).sin() * 40.0 - 100.0;
+                let h = noise_map.get_value(x, y) * 40.0 - 100.0;
                 self.quad_tree.set_value(self.num_levels-1, x, y, h);
             }
         }
