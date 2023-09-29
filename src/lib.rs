@@ -52,10 +52,13 @@ fn init_panic_hook() {
 }
 
 #[wasm_bindgen]
-pub fn main(screen: &Uint32Array, angle: f64) {
+pub fn main(height_map: *const HeightMap, screen: &Uint32Array, angle: f64) {
     init_panic_hook();
     //
+    let height_map = unsafe { &*height_map };
+    //
     main2(
+        height_map,
         |offset, colour| {
             screen.set_index(offset as u32, colour);
         },
@@ -63,9 +66,19 @@ pub fn main(screen: &Uint32Array, angle: f64) {
     );
 }
 
-pub fn main2<WriteScreen: FnMut(usize,u32)>(mut write_screen: WriteScreen, angle: f64) {
+#[wasm_bindgen]
+pub fn create_height_map() -> *mut HeightMap {
+    Box::into_raw(Box::new(HeightMap::new(8)))
+}
+
+#[wasm_bindgen]
+pub fn free_height_map(height_map: *mut HeightMap) {
+    let _ = unsafe { Box::from_raw(height_map) };
+}
+
+pub fn main2<WriteScreen: FnMut(usize,u32)>(height_map: &HeightMap, mut write_screen: WriteScreen, angle: f64) {
     //
-    let height_map = HeightMap::new(8);
+    //let height_map = HeightMap::new(8);
     if false {
         for level in 0..8 {
             let width = 1 << level;
