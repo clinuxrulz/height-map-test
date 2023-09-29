@@ -78,10 +78,10 @@ impl HeightMap {
         if depth < self.num_levels-1 {
             let half_size = size >> 1;
             let mut offsets: [([f64; 2],[usize; 2]); 4] = [
-                ([-0.5 * size2, -0.5 * size2], [0, 0]),
-                ([0.5 * size2, -0.5 * size2], [half_size, 0]),
-                ([0.5 * size2, 0.5 * size2], [half_size, half_size]),
-                ([-0.5 * size2, 0.5 * size2], [0, half_size]),
+                ([0.25 * size2, 0.25 * size2], [0, 0]),
+                ([-0.25 * size2, 0.25 * size2], [half_size, 0]),
+                ([-0.25 * size2, -0.25 * size2], [half_size, half_size]),
+                ([0.25 * size2, -0.25 * size2], [0, half_size]),
             ];
             offsets.sort_by(|a, b| {
                 let x = a.0[0] * ray_xz.direction.x + a.0[1] * ray_xz.direction.y;
@@ -95,9 +95,7 @@ impl HeightMap {
         } else {
             let t = 0.5 * (t_min + t_max);
             let pt = ray_xz.position_from_time(t);
-            let x = x0 + (((pt.x + 0.5 * size2) as i32).max(0).min((size-1) as i32) as usize);
-            let y = y0 + (((pt.y + 0.5 * size2) as i32).max(0).min((size-1) as i32) as usize);
-            let height = self.read(depth, x, y);
+            let height = -100.0;//self.read(depth, x0, y0);
             callback(TimeHeight { t: t_min, height, });
         }
     }
