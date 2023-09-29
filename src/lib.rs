@@ -66,6 +66,21 @@ pub fn main(screen: &Uint32Array, angle: f64) {
 pub fn main2<WriteScreen: FnMut(usize,u32)>(mut write_screen: WriteScreen, angle: f64) {
     //
     let height_map = HeightMap::new(8);
+    if false {
+        for level in 0..8 {
+            let width = 1 << level;
+            let mut offset: usize = width;
+            for y in 0..width {
+                for x in 0..width {
+                    let height = height_map.read(level, x, y);
+                    let c = ((height as i32).abs() as u32) & 0xFF;
+                    write_screen(offset + x, 0xFF808000 | c);
+                }
+                offset += 320;
+            }
+        }
+        return;
+    }
     //let aabb = Aabb::new(-128.0, -100.0, -128.0, 128.0, -80.0, 128.0);
     let screen_width = 320.0;
     let screen_height = 200.0;
@@ -100,7 +115,7 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(mut write_screen: WriteScreen, angle
             continue;
         }
         let ray_xz = ray_xz.unwrap();
-        let mut y_max = (screen_height - 1.0) as i32;
+        let mut y_max = screen_height as i32;
         height_map.ray_xz_insection_2pt5d(
             ray_xz,
             |TimeHeight { t, height }, early_bail_test| {
@@ -108,8 +123,7 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(mut write_screen: WriteScreen, angle
                 let y1 = camera.project_y(Vec3::new(pt.x, height, pt.y));
                 let yi = (y1 as i32).max(0).min(199);
                 if early_bail_test {
-                    return false;
-                    //return yi > y_max;
+                    return yi > y_max;
                 }
                 if yi < y_max {
                     for y in yi..y_max {
