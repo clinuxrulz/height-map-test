@@ -84,8 +84,8 @@ impl HeightMap {
                 ([0.25 * size2, -0.25 * size2], [x0, y0+half_size]),
             ];
             offsets.sort_by(|a, b| {
-                let x = a.0[0] * ray_xz.direction.x + a.0[1] * ray_xz.direction.y;
-                let y = b.0[0] * ray_xz.direction.x + b.0[1] * ray_xz.direction.y;
+                let x = -a.0[0] * ray_xz.direction.x - a.0[1] * ray_xz.direction.y;
+                let y = -b.0[0] * ray_xz.direction.x - b.0[1] * ray_xz.direction.y;
                 return x.partial_cmp(&y).unwrap();
             });
             for (ray_offset, index_offset) in offsets {
@@ -96,7 +96,6 @@ impl HeightMap {
             let t = 0.5 * (t_min + t_max);
             let pt = ray_xz.position_from_time(t);
             let height = ((x0 as f64) * 0.3).cos() * ((y0 as f64) * 0.3).sin() * 40.0 - 100.0;//self.read(depth, x0, y0);
-            println!("{},{}", pt.x, pt.y);
             callback(TimeHeight { t: t_max, height, });
         }
     }

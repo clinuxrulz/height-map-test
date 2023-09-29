@@ -95,7 +95,6 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(mut write_screen: WriteScreen, angle
         write_screen(i, 0xFF000000);
     }
     for x in 0..screen_width as u32 {
-        println!("scan at x: {}", x);
         let ray_xz = camera.screen_x_to_ray_xz(x as f64);
         if ray_xz.is_none() {
             continue;
