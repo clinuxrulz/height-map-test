@@ -101,22 +101,20 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(mut write_screen: WriteScreen, angle
         }
         let ray_xz = ray_xz.unwrap();
         let mut y_max = (screen_height - 1.0) as i32;
-        loop {
-            height_map.ray_xz_insection_2pt5d(ray_xz, |TimeHeight { t, height }| {
-                let pt = ray_xz.position_from_time(t);
-                let y1 = camera.project_y(Vec3::new(pt.x, height, pt.y));
-                let yi = (y1 as i32).max(0).min(199);
-                if yi < y_max {
-                    for y in yi..y_max {
-                        let y = y as u32;
-                        let offset = (y << 8) + (y << 6) + x;
-                        let c = ((height as i32).abs() as u32) & 0xFF;
-                        write_screen(offset as usize, 0xFF808000 | c);
-                    }
-                    y_max = yi;
+        height_map.ray_xz_insection_2pt5d(ray_xz, |TimeHeight { t, height }| {
+            let pt = ray_xz.position_from_time(t);
+            let y1 = camera.project_y(Vec3::new(pt.x, height, pt.y));
+            let yi = (y1 as i32).max(0).min(199);
+            if yi < y_max {
+                for y in yi..y_max {
+                    let y = y as u32;
+                    let offset = (y << 8) + (y << 6) + x;
+                    let c = ((height as i32).abs() as u32) & 0xFF;
+                    write_screen(offset as usize, 0xFF808000 | c);
                 }
-            });
-        }
+                y_max = yi;
+            }
+        });
 
         // TODO
     }
