@@ -26,7 +26,8 @@ impl HeightMap {
         let size = 1 << (self.num_levels-1);
         for y in 0..size {
             for x in 0..size {
-                let h: f64 = random::<f64>() * 80.0 - 140.0;
+                //let h: f64 = random::<f64>() * 80.0 - 140.0;
+                let h = ((x as f64) * 0.1).cos() * ((y as f64) * 0.1).sin() * 40.0 - 100.0;
                 self.quad_tree.set_value(self.num_levels-1, x, y, h);
             }
         }
@@ -93,9 +94,7 @@ impl HeightMap {
                 self.ray_xz_insection_2pt5d_2(depth + 1, index_offset[0], index_offset[1], ray_xz2, callback);
             }
         } else {
-            let t = 0.5 * (t_min + t_max);
-            let pt = ray_xz.position_from_time(t);
-            let height = ((x0 as f64) * 0.1).cos() * ((y0 as f64) * 0.1).sin() * 40.0 - 100.0;//self.read(depth, x0, y0);
+            let height = self.read(depth, x0, y0);
             callback(TimeHeight { t: t_max, height, });
         }
     }
