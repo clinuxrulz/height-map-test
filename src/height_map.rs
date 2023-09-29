@@ -26,7 +26,7 @@ impl HeightMap {
         let size = 1 << (self.num_levels-1);
         for y in 0..size {
             for x in 0..size {
-                let h: f64 = random::<f64>() * 100.0;
+                let h: f64 = random::<f64>() * 80.0 - 140.0;
                 self.quad_tree.set_value(self.num_levels-1, x, y, h);
             }
         }
@@ -62,7 +62,7 @@ impl HeightMap {
 
     fn ray_xz_insection_2pt5d_2<CALLBACK: FnMut(TimeHeight)>(&self, depth: usize, x0: usize, y0: usize, ray_xz: Ray2<f64>, callback: &mut CALLBACK) {
         let size: usize = 1 << (self.num_levels-1-depth);
-        let size2 = size as f64;
+        let size2 = (size as f64) * 2.0;
         let t1 = (-0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
         let t2 = (0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
         let t3 = (-0.5 * size2 - ray_xz.origin.y) / ray_xz.direction.y;

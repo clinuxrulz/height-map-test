@@ -65,7 +65,7 @@ pub fn main(screen: &Uint32Array, angle: f64) {
 
 pub fn main2<WriteScreen: FnMut(usize,u32)>(mut write_screen: WriteScreen, angle: f64) {
     //
-    let height_map = HeightMap::new(2);
+    let height_map = HeightMap::new(8);
     //let aabb = Aabb::new(-128.0, -100.0, -128.0, 128.0, -80.0, 128.0);
     let screen_width = 320.0;
     let screen_height = 200.0;
