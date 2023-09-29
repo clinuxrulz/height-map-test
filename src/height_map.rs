@@ -78,7 +78,7 @@ impl HeightMap {
         }
         if depth < self.num_levels-1 {
             let height = self.read(depth, x0, y0);
-            if callback(TimeHeight { t: t_min, height }, true) {
+            if callback(TimeHeight { t: t_max, height }, true) {
                 return;
             }
             let half_size = size >> 1;
