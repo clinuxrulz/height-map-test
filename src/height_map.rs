@@ -57,11 +57,11 @@ impl HeightMap {
         *self.quad_tree.get_value(level, x, y)
     }
 
-    pub fn ray_xz_insection_2pt5d<CALLBACK: FnMut(TimeHeight)>(&self, ray_xz: Ray2<f64>, mut callback: CALLBACK) {
+    pub fn ray_xz_insection_2pt5d<Callback: FnMut(TimeHeight,bool)->bool>(&self, ray_xz: Ray2<f64>, mut callback: Callback) {
         self.ray_xz_insection_2pt5d_2(0, 0, 0, ray_xz, &mut callback)
     }
 
-    fn ray_xz_insection_2pt5d_2<CALLBACK: FnMut(TimeHeight)>(&self, depth: usize, x0: usize, y0: usize, ray_xz: Ray2<f64>, callback: &mut CALLBACK) {
+    fn ray_xz_insection_2pt5d_2<CALLBACK: FnMut(TimeHeight,bool)->bool>(&self, depth: usize, x0: usize, y0: usize, ray_xz: Ray2<f64>, callback: &mut CALLBACK) {
         let size: usize = 1 << (self.num_levels-1-depth);
         let size2 = (size as f64) * 6.0;//* 2.0;
         let t1 = (-0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
@@ -77,6 +77,10 @@ impl HeightMap {
             return;
         }
         if depth < self.num_levels-1 {
+            let height = self.read(depth, x0, y0);
+            if callback(TimeHeight { t: t_min, height }, true) {
+                return;
+            }
             let half_size = size >> 1;
             let mut offsets: [([f64; 2],[usize; 2]); 4] = [
                 ([0.25 * size2, 0.25 * size2], [x0, y0]),
@@ -95,7 +99,7 @@ impl HeightMap {
             }
         } else {
             let height = self.read(depth, x0, y0);
-            callback(TimeHeight { t: t_max, height, });
+            let _ = callback(TimeHeight { t: t_max, height, }, false);
         }
     }
 }
