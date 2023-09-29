@@ -62,7 +62,7 @@ impl HeightMap {
 
     fn ray_xz_insection_2pt5d_2<CALLBACK: FnMut(TimeHeight)>(&self, depth: usize, x0: usize, y0: usize, ray_xz: Ray2<f64>, callback: &mut CALLBACK) {
         let size: usize = 1 << (self.num_levels-1-depth);
-        let size2 = (size as f64) * 12.0;//* 2.0;
+        let size2 = (size as f64) * 6.0;//* 2.0;
         let t1 = (-0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
         let t2 = (0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
         let t3 = (-0.5 * size2 - ray_xz.origin.y) / ray_xz.direction.y;
@@ -95,7 +95,7 @@ impl HeightMap {
         } else {
             let t = 0.5 * (t_min + t_max);
             let pt = ray_xz.position_from_time(t);
-            let height = ((x0 as f64) * 0.3).cos() * ((y0 as f64) * 0.3).sin() * 40.0 - 100.0;//self.read(depth, x0, y0);
+            let height = ((x0 as f64) * 0.1).cos() * ((y0 as f64) * 0.1).sin() * 40.0 - 100.0;//self.read(depth, x0, y0);
             callback(TimeHeight { t: t_max, height, });
         }
     }
