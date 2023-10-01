@@ -95,7 +95,7 @@ impl HeightMap {
             return;
         }
         let pos_xz: Vec2<f64>;
-        if t_min < 0.0 {
+        if t_min >= 0.0 {
             pos_xz = ray_xz.position_from_time(t_min) + Vec2::new(0.5 * size2, 0.5 * size2);
         } else {
             pos_xz = ray_xz.origin + Vec2::new(0.5 * size2, 0.5 * size2);
