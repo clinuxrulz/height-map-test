@@ -1,12 +1,13 @@
 use rand::prelude::random;
 use noise::{Fbm, Perlin};
-use noise::utils::{NoiseMapBuilder, PlaneMapBuilder};
+use noise::utils::{NoiseMapBuilder, PlaneMapBuilder, ColorGradient};
 
 use crate::{QuadTree, Ray2, Vec2};
 
 pub struct HeightMap {
     num_levels: usize,
     quad_tree: QuadTree<f64>,
+    color_gradient_op: Option<ColorGradient>,
 }
 
 pub struct TimeHeight {
@@ -19,6 +20,7 @@ impl HeightMap {
         let mut r = HeightMap {
             num_levels,
             quad_tree: QuadTree::new(num_levels, 0.0f64),
+            color_gradient_op: None,
         };
         r.init_data();
         r
@@ -26,19 +28,24 @@ impl HeightMap {
 
     fn init_data(&mut self) {
         let size = 1 << (self.num_levels-1);
-        let fbm = Fbm::<Perlin>::new(0);
+        //let fbm = Fbm::<Perlin>::new(0);
 
+        let (noise_map, color_gradient) = crate::make_planet();
+        self.color_gradient_op = Some(color_gradient);
+
+        /*
         let noise_map = PlaneMapBuilder::<_, 2>::new(&fbm)
                 .set_size(size, size)
                 .set_x_bounds(-2.0, 2.0)
                 .set_y_bounds(-2.0, 2.0)
                 .build();
+        */
         
         for y in 0..size {
             for x in 0..size {
                 //let h: f64 = random::<f64>() * 80.0 - 140.0;
                 //let h = ((x as f64) * 0.1).cos() * ((y as f64) * 0.1).sin() * 40.0 - 100.0;
-                let h = noise_map.get_value(x, y) * 40.0 - 100.0;
+                let h = noise_map.get_value(x, y);
                 self.quad_tree.set_value(self.num_levels-1, x, y, h);
             }
         }
@@ -68,28 +75,28 @@ impl HeightMap {
         *self.quad_tree.get_value(level, x, y)
     }
 
-    pub fn ray_xz_insection_2pt5d<Callback: FnMut(TimeHeight,bool)->bool>(&self, ray_xz: Ray2<f64>, mut callback: Callback) {
+    pub fn ray_xz_insection_2pt5d<Callback: FnMut(TimeHeight,bool,Option<[u8;4]>)->bool>(&self, ray_xz: Ray2<f64>, mut callback: Callback) {
         self.ray_xz_insection_2pt5d_2(0, 0, 0, ray_xz, &mut callback)
     }
 
-    fn ray_xz_insection_2pt5d_2<CALLBACK: FnMut(TimeHeight,bool)->bool>(&self, depth: usize, x0: usize, y0: usize, ray_xz: Ray2<f64>, callback: &mut CALLBACK) {
+    fn ray_xz_insection_2pt5d_2<CALLBACK: FnMut(TimeHeight,bool,Option<[u8;4]>)->bool>(&self, depth: usize, x0: usize, y0: usize, ray_xz: Ray2<f64>, callback: &mut CALLBACK) {
         let size: usize = 1 << (self.num_levels-1-depth);
-        let size2 = (size as f64) * 6.0;//* 2.0;
+        let size2 = (size as f64) * 20.0;//* 2.0;
         let t1 = (-0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
         let t2 = (0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
         let t3 = (-0.5 * size2 - ray_xz.origin.y) / ray_xz.direction.y;
         let t4 = (0.5 * size2 - ray_xz.origin.y) / ray_xz.direction.y;
         let t_min = t1.min(t2).max(t3.min(t4));
         let t_max = t1.max(t2).min(t3.max(t4));
-        if t_min <= 0.0 {
-            return;
+        fn scale_height(height: f64) -> f64 {
+            return height * 200.0;
         }
         if t_max < t_min {
             return;
         }
         if depth < self.num_levels-1 {
             let height = self.read(depth, x0 >> (self.num_levels-1-depth), y0 >> (self.num_levels-1-depth));
-            if callback(TimeHeight { t: t_max, height }, true) {
+            if callback(TimeHeight { t: t_max, height: scale_height(height) }, true, None) {
                 return;
             }
             let half_size = size >> 1;
@@ -109,8 +116,17 @@ impl HeightMap {
                 self.ray_xz_insection_2pt5d_2(depth + 1, index_offset[0], index_offset[1], ray_xz2, callback);
             }
         } else {
+            if t_min <= 0.0 {
+                return;
+            }
             let height = self.read(depth, x0, y0);
-            let _ = callback(TimeHeight { t: t_max, height, }, false);
+            let color: Option<[u8;4]>;
+            if let Some(color_gradient) = &self.color_gradient_op {
+                color = Some(color_gradient.get_color(height));
+            } else {
+                color = None;
+            }
+            let _ = callback(TimeHeight { t: t_max, height: scale_height(height), }, false, color);
         }
     }
 }

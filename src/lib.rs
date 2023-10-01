@@ -5,6 +5,7 @@ use js_sys::Uint32Array;
 mod aabb;
 mod acos;
 mod camera;
+mod complexplanet;
 mod height_map;
 mod vec2;
 mod vec3;
@@ -22,6 +23,7 @@ mod zero;
 pub use aabb::Aabb;
 pub use acos::Acos;
 pub use camera::Camera;
+pub use complexplanet::make_planet;
 pub use height_map::HeightMap;
 pub use vec2::Vec2;
 pub use vec3::Vec3;
@@ -106,13 +108,13 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(height_map: &HeightMap, mut write_sc
         y: (0.5 * angle2).sin(),
         z: 0.0,
     };
-    let cam_pos = q.rotate(Vec3::new(400.0, 0.0, 400.0));
+    let cam_pos = q.rotate(Vec3::new(1600.0, 0.0, 0.0));
     let w = cam_pos.normalize();
     let up = Vec3::new(0.0, 1.0, 0.0);
     let u = up.cross(w).normalize();
     let camera = Camera {
         space: Transform3::new(
-            cam_pos,
+            cam_pos + Vec3::new(0.0, 200.0, 0.0),
             Quaternion::from_wu(w, u),
         ),
         screen_width,
@@ -131,7 +133,7 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(height_map: &HeightMap, mut write_sc
         let mut y_max = screen_height as i32;
         height_map.ray_xz_insection_2pt5d(
             ray_xz,
-            |TimeHeight { t, height }, early_bail_test| {
+            |TimeHeight { t, height }, early_bail_test, color_op| {
                 let pt = ray_xz.position_from_time(t);
                 let y1 = camera.project_y(Vec3::new(pt.x, height, pt.y));
                 let yi = (y1 as i32).max(0).min(199);
@@ -142,8 +144,14 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(height_map: &HeightMap, mut write_sc
                     for y in yi..y_max {
                         let y = y as u32;
                         let offset = (y << 8) + (y << 6) + x;
-                        let c = ((height as i32).abs() as u32) & 0xFF;
-                        write_screen(offset as usize, 0xFF808000 | c);
+                        let color2: u32;
+                        if let Some(color) = color_op {
+                            color2 = 0xFF000000 | ((color[2] as u32) << 16) | ((color[1] as u32) << 8) | (color[0] as u32);
+                        } else {
+                            let c = ((height as i32).abs() as u32) & 0xFF;
+                            color2 = 0xFF808000 | c;
+                        }
+                        write_screen(offset as usize, color2);
                     }
                     y_max = yi;
                 }
