@@ -75,6 +75,92 @@ impl HeightMap {
         *self.quad_tree.get_value(level, x, y)
     }
 
+    pub fn ray_xz_intersection_2pt5d<Callback: FnMut(TimeHeight,bool,Option<[u8;4]>)->bool>(&self, ray_xz: Ray2<f64>, mut callback: Callback) {
+        const BLOCK_SIZE: f64 = 40.0;
+        let size: usize = 1 << (self.num_levels-1);
+        let size2 = (size as f64) * BLOCK_SIZE;
+        let t1 = (-0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
+        let t2 = (0.5 * size2 - ray_xz.origin.x) / ray_xz.direction.x;
+        let t3 = (-0.5 * size2 - ray_xz.origin.y) / ray_xz.direction.y;
+        let t4 = (0.5 * size2 - ray_xz.origin.y) / ray_xz.direction.y;
+        let t_min = t1.min(t2).max(t3.min(t4));
+        let t_max = t1.max(t2).min(t3.max(t4));
+        fn scale_height(height: f64) -> f64 {
+            if height < 0.0 {
+                return 0.0;
+            }
+            return height * 1000.0;
+        }
+        if t_max < t_min {
+            return;
+        }
+        let pos_xz: Vec2<f64>;
+        if t_min < 0.0 {
+            pos_xz = ray_xz.position_from_time(t_min) + Vec2::new(0.5 * size2, 0.5 * size2);
+        } else {
+            pos_xz = ray_xz.origin + Vec2::new(0.5 * size2, 0.5 * size2);
+        }
+        let mut map_x = (pos_xz.x / BLOCK_SIZE) as i32;
+        let mut map_z = (pos_xz.y / BLOCK_SIZE) as i32;
+        let mut side_dist_x: f64;
+        let mut side_dist_z: f64;
+        let delta_dist_x = (BLOCK_SIZE / ray_xz.direction.x).abs();
+        let delta_dist_z = (BLOCK_SIZE / ray_xz.direction.y).abs();
+        let step_x: i32;
+        let step_z: i32;
+        
+        if ray_xz.direction.x < 0.0 {
+            step_x = -1;
+            side_dist_x = (pos_xz.x / BLOCK_SIZE - (map_x as f64)) * delta_dist_x;
+        } else {
+            step_x = 1;
+            side_dist_x = (((map_x + 1) as f64) - pos_xz.x / BLOCK_SIZE) * delta_dist_x;
+        }
+        if ray_xz.direction.y < 0.0 {
+            step_z = -1;
+            side_dist_z = (pos_xz.y / BLOCK_SIZE - (map_z as f64)) * delta_dist_z;
+        } else {
+            step_z = 1;
+            side_dist_z = (((map_z + 1) as f64) - pos_xz.y / BLOCK_SIZE) * delta_dist_z;
+        }
+        loop {
+            let dist: f64;
+            if side_dist_x < side_dist_z {
+                side_dist_x += delta_dist_x;
+                map_x += step_x;
+                dist = t_min.max(0.0) + side_dist_x;
+            } else {
+                side_dist_z += delta_dist_z;
+                map_z += step_z;
+                dist = t_min.max(0.0) + side_dist_z;
+            }
+            if map_x < 0 && step_x < 0 {
+                break;
+            }
+            if map_x >= size as i32 && step_x > 0 {
+                break;
+            }
+            if map_z < 0 && step_z < 0 {
+                break;
+            }
+            if map_z >= size as i32 && step_z > 0 {
+                break;
+            }
+            if 0 <= map_x && map_x < size as i32 {
+                if 0 <= map_z && map_z < size as i32 {
+                    let height = self.read(self.num_levels-1, map_x as usize, map_z as usize);
+                    let color: Option<[u8;4]>;
+                    if let Some(color_gradient) = &self.color_gradient_op {
+                        color = Some(color_gradient.get_color(height));
+                    } else {
+                        color = None;
+                    }
+                    let _ = callback(TimeHeight { t: dist, height: scale_height(height), }, false, color);
+                }
+            }
+        }
+    }
+
     pub fn ray_xz_insection_2pt5d<Callback: FnMut(TimeHeight,bool,Option<[u8;4]>)->bool>(&self, ray_xz: Ray2<f64>, mut callback: Callback) {
         self.ray_xz_insection_2pt5d_2(0, 0, 0, ray_xz, &mut callback)
     }

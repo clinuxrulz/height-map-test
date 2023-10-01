@@ -1721,7 +1721,7 @@ pub fn make_planet() -> (NoiseMap, ColorGradient) {
     let offset_y = 0.0;
     let zoom = 3.0;
     let noise_map = PlaneMapBuilder::new(&unscaledFinalPlanet)
-        .set_size(512, 512)
+        .set_size(256, 256)
         .set_x_bounds((-2.0 + offset_x)/zoom, (2.0 + offset_y)/zoom)
         .set_y_bounds((-2.0 + offset_x)/zoom, (2.0 + offset_y)/zoom)
         .build();

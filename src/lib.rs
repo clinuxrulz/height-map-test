@@ -70,7 +70,7 @@ pub fn main(height_map: *const HeightMap, screen: &Uint32Array, angle: f64) {
 
 #[wasm_bindgen]
 pub fn create_height_map() -> *mut HeightMap {
-    Box::into_raw(Box::new(HeightMap::new(9)))
+    Box::into_raw(Box::new(HeightMap::new(8)))
 }
 
 #[wasm_bindgen]
