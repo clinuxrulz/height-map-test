@@ -70,7 +70,7 @@ pub fn main(height_map: *const HeightMap, screen: &Uint32Array, angle: f64) {
 
 #[wasm_bindgen]
 pub fn create_height_map() -> *mut HeightMap {
-    Box::into_raw(Box::new(HeightMap::new(8)))
+    Box::into_raw(Box::new(HeightMap::new(9)))
 }
 
 #[wasm_bindgen]
@@ -114,7 +114,7 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(height_map: &HeightMap, mut write_sc
     let u = up.cross(w).normalize();
     let camera = Camera {
         space: Transform3::new(
-            cam_pos + Vec3::new(0.0, 200.0, 0.0),
+            cam_pos + Vec3::new(0.0, 500.0, 0.0),
             Quaternion::from_wu(w, u),
         ),
         screen_width,

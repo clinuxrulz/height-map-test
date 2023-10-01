@@ -1717,10 +1717,13 @@ pub fn make_planet() -> (NoiseMap, ColorGradient) {
     //        100000,
     //    );
 
+    let offset_x = 9.6;
+    let offset_y = 0.0;
+    let zoom = 3.0;
     let noise_map = PlaneMapBuilder::new(&unscaledFinalPlanet)
-        .set_size(/*1024, 1024*/ 256, 256)
-        .set_x_bounds(-2.0, 2.0)
-        .set_y_bounds(-2.0, 2.0)
+        .set_size(512, 512)
+        .set_x_bounds((-2.0 + offset_x)/zoom, (2.0 + offset_y)/zoom)
+        .set_y_bounds((-2.0 + offset_x)/zoom, (2.0 + offset_y)/zoom)
         .build();
 
     let color_gradient = ColorGradient::new().build_terrain_gradient();
