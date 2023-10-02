@@ -8,17 +8,19 @@
     <canvas style="width: 100%;" id="canvas" width="320" height="200">
     </canvas>
     <script type="module">
-      import init, { main, create_height_map } from "./pkg/height_map_test.js";
+      import init, { main, alloc_screen, screen_get_ptr, create_height_map } from "./pkg/height_map_test.js";
       let angle = 0.0;
-      init().then(() => {
+      init().then((wasm) => {
+        let screen = alloc_screen();
       	let heightMap = create_height_map();
         let canvas = document.getElementById("canvas");
         let ctx = canvas.getContext("2d");
-        let imgData = ctx.createImageData(320, 200);
-        let screen = new Uint32Array(imgData.data.buffer);
+	let screen_ptr = screen_get_ptr(screen);
+        let imgData = new Uint8ClampedArray(wasm.memory.buffer, screen_ptr, 4*64000);
+	let imgData2 = new ImageData(imgData, 320, 200);
         let render = () => {
-          main(heightMap, screen, angle);
-          ctx.putImageData(imgData, 0, 0);
+          main(screen, heightMap, angle);
+          ctx.putImageData(imgData2, 0, 0);
           angle += 1;
           if (angle >= 360.0) {
             angle -= 360.0;

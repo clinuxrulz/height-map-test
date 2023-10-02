@@ -54,18 +54,39 @@ fn init_panic_hook() {
 }
 
 #[wasm_bindgen]
-pub fn main(height_map: *const HeightMap, screen: &Uint32Array, angle: f64) {
+pub fn main(screen: *mut Vec<u32>, height_map: *const HeightMap, angle: f64) {
     init_panic_hook();
     //
+    let screen = unsafe { &mut *screen };
     let height_map = unsafe { &*height_map };
     //
     main2(
         height_map,
         |offset, colour| {
-            screen.set_index(offset as u32, colour);
+            screen[offset] = colour;
         },
         angle,
     );
+}
+
+#[wasm_bindgen]
+pub fn alloc_screen() -> *mut Vec<u32> {
+    let mut screen: Vec<u32> = Vec::with_capacity(64000);
+    for _i in 0..64000 {
+        screen.push(0);
+    }
+    Box::into_raw(Box::new(screen))
+}
+
+#[wasm_bindgen]
+pub fn free_screen(screen: *mut Vec<u32>) {
+    let _ = unsafe { Box::from_raw(screen) };
+}
+
+#[wasm_bindgen]
+pub fn screen_get_ptr(screen: *mut Vec<u32>) -> *mut u32 {
+    let screen = unsafe { &mut *screen };
+    screen.as_mut_ptr()
 }
 
 #[wasm_bindgen]
