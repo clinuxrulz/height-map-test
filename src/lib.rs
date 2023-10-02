@@ -108,7 +108,7 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(height_map: &HeightMap, mut write_sc
         y: (0.5 * angle2).sin(),
         z: 0.0,
     };
-    let cam_pos = q.rotate(Vec3::new(1600.0, 0.0, 0.0));
+    let cam_pos = q.rotate(Vec3::new(4000.0, 0.0, 0.0));
     let w = cam_pos.normalize();
     let up = Vec3::new(0.0, 1.0, 0.0);
     let u = up.cross(w).normalize();
@@ -131,7 +131,7 @@ pub fn main2<WriteScreen: FnMut(usize,u32)>(height_map: &HeightMap, mut write_sc
         }
         let ray_xz = ray_xz.unwrap();
         let mut y_max = screen_height as i32;
-        height_map.ray_xz_insection_2pt5d(
+        height_map.ray_xz_intersection_2pt5d(
             ray_xz,
             |TimeHeight { t, height }, early_bail_test, color_op| {
                 let pt = ray_xz.position_from_time(t);
