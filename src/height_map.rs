@@ -29,10 +29,10 @@ impl HeightMap {
     fn init_data(&mut self) {
         let size = 1 << (self.num_levels-1);
 
-        //let (noise_map, color_gradient) = crate::make_planet();
-        //self.color_gradient_op = Some(color_gradient);
+        let (noise_map, color_gradient) = crate::make_planet();
+        self.color_gradient_op = Some(color_gradient);
 
-        
+        /*
         let fbm = Fbm::<Perlin>::new(0);
         let noise_map = PlaneMapBuilder::<_, 2>::new(&fbm)
                 .set_size(size, size)
@@ -41,6 +41,7 @@ impl HeightMap {
                 .build();
         let color_gradient = ColorGradient::new().build_terrain_gradient();
         self.color_gradient_op = Some(color_gradient);
+        */
         
         for y in 0..size {
             for x in 0..size {
@@ -125,6 +126,8 @@ impl HeightMap {
             side_dist_z = (((map_z + 1) as f64) - pos_xz.y / BLOCK_SIZE) * delta_dist_z;
         }
         loop {
+            let dist: f64;
+            dist = t_min.max(0.0) + side_dist_x.min(side_dist_z);
             if side_dist_x < side_dist_z {
                 side_dist_x += delta_dist_x;
                 map_x += step_x;
@@ -132,8 +135,6 @@ impl HeightMap {
                 side_dist_z += delta_dist_z;
                 map_z += step_z;
             }
-            let dist: f64;
-            dist = t_min.max(0.0) + side_dist_x.min(side_dist_z);
             if 0 <= map_x && map_x < size as i32 {
                 if 0 <= map_z && map_z < size as i32 {
                     let height = self.read(self.num_levels-1, map_x as usize, map_z as usize);
