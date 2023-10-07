@@ -1,5 +1,5 @@
 # height-map-test
-Experimental 2.5D rendering of height map (CPU rendered)
+Experimental 2.5D voxel-like rendering of height map (CPU rendered)
 
 ## Algorithm
 Just does ray-casting like the original Wolfenstein 3D, but instead of stopping at the first block it will continue through all the blocks to render a height map.
